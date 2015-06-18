@@ -18,7 +18,7 @@ gulp.task('run test', () => {
                    'async-only': true,
                    ui: 'bdd',
                    reporter: 'spec',
-                   timeout: 10000,
+                   timeout: 500,
                    bail: false,
                    ignoreLeaks: false,
                    globals: []

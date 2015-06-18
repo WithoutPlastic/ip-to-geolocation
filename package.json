@@ -1,7 +1,7 @@
 {
   "name": "ip-to-geolocation",
   "version": "0.0.6",
-  "main": "lib/index.js",
+  "main": "./lib/index.js",
   "description": "A ip to geolocation module",
   "homepage": "https://github.com/PapriaZ/ip-to-geolocation",
   "bugs": "https://github.com/PaprikaZ/ip-to-geolocation/issues",
@@ -15,7 +15,6 @@
     "url": "git://github.com/PaprikaZ/ip-to-geolocation.git"
   },
   "license": "MIT",
-  "main": "./lib/index.js",
   "files": [
     "lib"
   ],
@@ -31,6 +30,7 @@
     "network"
   ],
   "devDependencies": {
+    "async": "^1.2.1",
     "chai": "^3.0.0",
     "gulp-mocha": "^2.1.1",
     "mocha": "^2.2.5",
