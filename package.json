@@ -1,0 +1,44 @@
+{
+  "name": "ip-to-geolocation",
+  "version": "0.0.6",
+  "main": "lib/index.js",
+  "description": "A ip to geolocation module",
+  "homepage": "https://github.com/PapriaZ/ip-to-geolocation",
+  "bugs": "https://github.com/PaprikaZ/ip-to-geolocation/issues",
+  "author": {
+    "name": "Zhu Jie",
+    "email": "sms.extreme@gmail.com",
+    "url": "https://github.com/PaprikaZ"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/PaprikaZ/ip-to-geolocation.git"
+  },
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "test": "gulp --gulpfile gulpfile.js 'run test'"
+  },
+  "keywords": [
+    "ip",
+    "isp",
+    "geolocation",
+    "database",
+    "index",
+    "network"
+  ],
+  "devDependencies": {
+    "chai": "^3.0.0",
+    "gulp-mocha": "^2.1.1",
+    "mocha": "^2.2.5",
+    "rewire": "^2.3.4"
+  },
+  "dependencies": {
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.1.0",
+    "gulp-rename": "^1.2.2"
+  }
+}
