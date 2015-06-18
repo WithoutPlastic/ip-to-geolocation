@@ -1,11 +1,11 @@
 var localDataLoader = require('./local.data.loader.js');
 
 
-const invalidInputReturnValue = 'N/A'
-    , returnNotSupportError = () => new Error('Not support error');
+const invalidInputReturnValue = { country: '', province: '', city: '', organization: '' }
+    , returnNotSupportError = (input, callback) => callback(new Error('Not support error'));
 
 
-var sectionTable = null;
+var bufferTable = null;
 
 
 var validateIPAddress = (ipAddress) => {
@@ -18,15 +18,41 @@ var validateIPAddress = (ipAddress) => {
     return (ipAddressNumber.length === 4) && ipAddressNumber.every(validateIPSliceNumber);
 };
 
+/**
+ * TODO: Query geo location by ip v6 address.
+ *
+ * @param {string} ipAddress
+ * @param {function} callback - Params: err, geoLocationObject.
+ * @api public
+ */
+
 var queryIPv6 = returnNotSupportError;
+
+/**
+ * TODO: Query geo location by domain name.
+ *
+ * @param {string} domainName
+ * @param {function} callback - Params: err, geoLocationObject.
+ * @api public
+ */
 
 var queryDomain = returnNotSupportError;
 
-var queryIPv4 = (ipAddressString) => {
-    let dataBuffer = sectionTable.dataBuffer
-      , indexBuffer = sectionTable.indexBuffer
-      , indexBufferEndOffset = sectionTable.indexBufferEndOffset
-      , ipSliceList = ipAddressString.trim().split('.')
+/**
+ * Query geo location by ip v4 address.
+ *
+ * - Keep async callback even query from in-memory database.
+ *
+ * @param {string} ipAddress
+ * @param {function} callback - Params: err, geoLocationObject.
+ * @api public
+ */
+
+var queryIPv4 = (ipAddress, callback) => {
+    let dataBuffer = bufferTable.dataBuffer
+      , indexBuffer = bufferTable.indexBuffer
+      , indexBufferEndOffset = bufferTable.indexBufferEndOffset
+      , ipSliceList = ipAddress.trim().split('.')
       , highSliceNumber = parseInt(ipSliceList[0], 10)
       , indexOffsetBytesL1 = highSliceNumber * 4
       , ipInInt32 = new Buffer(ipSliceList).readInt32BE(0)
@@ -36,12 +62,12 @@ var queryIPv4 = (ipAddressString) => {
                 indexBufferEndOffset + offset - 1024 + length
             ).toString('utf-8').split('\t');
 
-            return (resultArray.length !== 4) ? invalidInputReturnValue : {
+            callback(null, (resultArray.length !== 4) ? invalidInputReturnValue : {
                 country: resultArray[0],
                 province: resultArray[1],
                 city: resultArray[2],
                 organization: resultArray[3]
-            };
+            });
         }
       , iterate = () => {
             let offset = indexBuffer.slice(indexOffsetBytesL1, indexOffsetBytesL1 + 4).readInt32LE(0);
@@ -55,61 +81,46 @@ var queryIPv4 = (ipAddressString) => {
                 }
             }
 
-            return invalidInputReturnValue;
+            return callback(null, invalidInputReturnValue);
         };
 
-    /*
-    var iterate = (offsetBytes) => {
-        let foo = sectionTable.ipL2IndexSection.slice(offsetBytes, offsetBytes + indexOffsetL2SepLengthInBytes)
-          , consequent = (offset, length) => {
-                let normalizedOffset = offset - 1024
-                  , resultSlice = sectionTable.geoLocationIndexSection.slice(
-                        normalizedOffset, normalizedOffset + length
-                    );
-
-                return resultSlice.toString('utf-8').split('\t');
-            }
-          , predicate = () => {
-                if (ipInInt32 <= foo) {
-                    consequent((foo[6] << 16) + (foo[5] << 8) + foo[4], foo[7]);
-                } else {
-                    iterate(offsetBytes + 8);
-                }
-            }
-          , handleOutOfSection = () => {
-                if (offsetBytes < sectionTable.ipL2IndexSection.length) {
-                    predicate();
-                } else {
-                    return invalidInputReturnValue;
-                }
-            };
-
-        handleOutOfSection();
-    };
-    */
-
-    return validateIPAddress(ipAddressString) ? iterate() : new Error('Invalid IP Address');
+    validateIPAddress(ipAddress) ? iterate() : callback(new Error('Invalid IP Address'));
 };
 
+/**
+ * Initialize from ip to geo location database path.
+ *
+ * @param {string} dataPath
+ * @param {function} callback - Params: err.
+ * @api public
+ */
 
 var initialize = (dataPath, callback) => {
     localDataLoader.load(dataPath, (err, result) => {
         if (err || !result) {
             callback(err);
         } else {
-            sectionTable = result;
+            bufferTable = result;
             callback();
         }
     });
 };
 
+/**
+ * Not initialize guard, return not initialized error.
+ *
+ * @param {function} func
+ * @return {function}
+ * @api private
+ */
 
 var returnErrorIfNotInitialized = (func) => {
     return (...argumentList) => {
-        return !!sectionTable ? func(...argumentList) : new Error('Not initialized error');
+        let callback = argumentList[argumentList.length - 1];
+
+        !!bufferTable ? func(...argumentList) : callback(new Error('Not initialized error'));
     }
 };
-
 
 
 module.exports = {

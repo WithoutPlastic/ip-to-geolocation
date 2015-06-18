@@ -5,6 +5,14 @@ var fs = require('fs')
 var headOffsetSectionBytes = 4;
 
 
+/**
+ * TODO: Load from local ip geo location .dat file to memory.
+ *
+ * @param {string} dataFilePath
+ * @param {function} callback - Params: err, loadedBufferTable.
+ * @api private
+ */
+
 var loadDatFormat = (dataFilePath, callback) => {
     let parseData = (buffer) => {
         let indexBufferEndSection = buffer.slice(0, headOffsetSectionBytes)
@@ -22,9 +30,25 @@ var loadDatFormat = (dataFilePath, callback) => {
     });
 };
 
+/**
+ * Load from local ip geo location .datx file to memory.
+ *
+ * @param {string} dataFilePath
+ * @param {function} callback - Params: err, loadedBufferTable.
+ * @api private
+ */
+
 var loadDatxFormat = (dataFilePath, callback) => {
     callback(new Error('datx data format not support'));
 };
+
+/**
+ * Load from local ip geo location database file to memory.
+ *
+ * @param {string} dataFilePath
+ * @param {function} callback - Params: err, loadedBufferTable.
+ * @api public
+ */
 
 var load = (dataFilePath, callback) => {
     let normalizedDataFilePath = path.normalize(dataFilePath)
