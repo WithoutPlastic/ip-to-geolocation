@@ -1,6 +1,6 @@
 {
   "name": "ip-to-geolocation",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "main": "./lib/index.js",
   "description": "A ip to geolocation module",
   "homepage": "https://github.com/PapriaZ/ip-to-geolocation",
